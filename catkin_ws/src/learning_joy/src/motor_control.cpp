@@ -42,20 +42,26 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	double throttle_fwd_perc = 0.0;
 	double throttle_rev_perc = 0.0;
 	double steer_dir = 0.0;
+	double speed = 0.0; //this is a debugging value
 	char actual_dir = 'A'; //this will just be used for debugging purposes.  We will be later mapping this to actual motor commands
+	char plow_FR_dir = 'S'; //this is used for debugging, 'S' for Stopped, 'F' for Forward, 'R' for Reverse
 
 	//NOTE: we will need to configure a deadzone so that we can make sure that the plow will not take off unexpectedly
+
+	throttle_fwd_perc = 0.0;
+	throttle_rev_perc = 0.0;
 
 
 	if((DPAD_U == 1) && (governor > 0.1)) //increase the maximum speed by pressing up on the DPAD
 	{
 		governor = governor - 0.1;
-		ROS_INFO("MAX SPEED INCREASED");
+		ROS_INFO("MAX SPEED INCREASED TO %f",(1.0 - governor)); //the governor value will be SUBTRACTED FROM the MAX SPEED
 	}
 
 	if((DPAD_D == 1) && (governor < 0.9))//decrease the maximum speed by pressing down on the DPAD
 	{
 		governor = governor + 0.1;
+		ROS_INFO("MAX SPEED DECREASED TO %f",(1.0 - governor));
 	}
 
 
@@ -75,11 +81,28 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 		ROS_INFO("ERROR CANNOT GO FWD & REVERSE");
 	}
 
-	if(steer_dir < 0)
+	else if(throttle_fwd_perc > 0.1)
+	{
+		plow_FR_dir = 'F';
+		speed = throttle_fwd_perc;
+	}
+
+	else if(throttle_rev_perc > 0.1)
+	{
+		plow_FR_dir = 'R';
+		speed = throttle_rev_perc;
+	}
+
+	else
+	{
+		speed = 0.0;
+	}
+
+	if(steer_dir < -0.12)
 	{
 		actual_dir = 'R';
 	}
-	else if(steer_dir > 0)
+	else if(steer_dir > 0.14)
 	{
 		actual_dir = 'L';
 	}
@@ -87,9 +110,12 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	{
 		actual_dir = 'C'; //C for centered
 	}
+
 	// ROS_INFO("governor value: %f", governor);
-	//ROS_INFO("JOY L: %f",steer_dir);
-	ROS_INFO("SPEED %%: %f",throttle_fwd_perc); //this is basic debug statement
+	// ROS_INFO("JOY L: %f",steer_dir);
+	// ROS_INFO("SPEED %%: %f",throttle_fwd_perc); //this is basic debug statement
+	ROS_INFO("SPEED %%: %f",speed); //this is basic debug statement
+	ROS_INFO("DIRECTION: %c",plow_FR_dir); //this is basic debug statement
 	// ROS_INFO("SPEED %%: %f",throttle_rev_perc); //this is basic debug statement
 	ROS_INFO("Turning : %c",actual_dir);
 	// ROS_INFO("Button Pressed: %d",xbox_button); //this is basic debug statement
