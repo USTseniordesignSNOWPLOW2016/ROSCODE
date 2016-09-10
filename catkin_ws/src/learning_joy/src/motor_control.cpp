@@ -78,7 +78,7 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 
 	if((throttle_rev_perc > 0.1) && (throttle_fwd_perc > 0.1))
 	{
-		ROS_INFO("ERROR CANNOT GO FWD & REVERSE");
+		ROS_INFO("ERROR CANNOT GO FWD & REVERSE"); //might be used for braking (holding both triggers down)
 	}
 
 	else if(throttle_fwd_perc > 0.1)
@@ -110,6 +110,26 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	{
 		actual_dir = 'C'; //C for centered
 	}
+
+
+	/*
+		Steering Algorithm explained: 
+
+		max_turn // this will be a defined constant speed that will represent the maximum speed that we can turn the snowplow at
+
+		Straight: L_wheel_speed = throttle_perc //both wheels will just be the throttle speed 
+				  R_wheel_speed = throttle_perc 
+
+		Left Turn: L_wheel_speed = throttle_perc * max_turn //a turn will be the percentage of turn multiplied by the maximum allowed turn speed
+				   R_wheel_speed (In Reverse) = throttle_perc * max_turn
+
+		Right Turn: L_wheel_speed (In Reverse) = throttle_perc * max_turn //a turn will be the percentage of turn multiplied by the maximum allowed turn speed
+				   R_wheel_speed = throttle_perc * max_turn
+	*/
+
+
+
+
 
 	// ROS_INFO("governor value: %f", governor);
 	// ROS_INFO("JOY L: %f",steer_dir);
