@@ -10,8 +10,15 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h> //not sure that this is needed
 #include <sensor_msgs/Joy.h>
+#include "std_msgs/String.h"
+
 
 double governor = 0.5; //this governor will keep the system from taking off unexpectedly.  Use the DPAD to adjust the maximum speed of the vehicle
+ros::Publisher motor_data_pub;
+// class SabertoothMotorController{ //maybe use this class to clean everything up
+// 	public:
+// 		ros::Publisher motor_data_pub = n.advertise<std_msgs::String>("sabertooth_motor_data", 1000); //create a publisher for the motor control data
+// }
 
 void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 {
@@ -39,6 +46,11 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	int DPAD_R = joy_data->buttons[12];
 	int DPAD_U = joy_data->buttons[13];
 	int DPAD_D = joy_data->buttons[14];
+
+	int max_turn = 1023; //maximum speed allowed to turn at (2047 is the maximum speed sent to motors)
+	int motor_1_val = 0; //this is the value that is actually sent out to the wheels (it is the percentage of the maximum turn speed taken from the joystick)
+	int motor_2_val = 0; //this is the value that is actually sent out to the wheels (it is the percentage of the maximum turn speed taken from the joystick)
+
 	double throttle_fwd_perc = 0.0;
 	double throttle_rev_perc = 0.0;
 	double steer_dir = 0.0;
@@ -98,18 +110,25 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 		speed = 0.0;
 	}
 
-	if(steer_dir < -0.12)
+	if(steer_dir < -0.12) //might want to move this to the else loop so that turning can only be done without throttle
 	{
 		actual_dir = 'R';
+		motor_1_val = steer_dir * max_turn;
+		motor_2_val = -(steer_dir * max_turn);
 	}
 	else if(steer_dir > 0.14)
 	{
 		actual_dir = 'L';
+
+		motor_1_val = steer_dir * max_turn;
+		motor_2_val = -(steer_dir * max_turn);
 	}
 	else
 	{
 		actual_dir = 'C'; //C for centered
 	}
+
+
 
 
 	/*
@@ -131,6 +150,7 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 
 
 
+
 	// ROS_INFO("governor value: %f", governor);
 	// ROS_INFO("JOY L: %f",steer_dir);
 	// ROS_INFO("SPEED %%: %f",throttle_fwd_perc); //this is basic debug statement
@@ -138,7 +158,28 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	ROS_INFO("DIRECTION: %c",plow_FR_dir); //this is basic debug statement
 	// ROS_INFO("SPEED %%: %f",throttle_rev_perc); //this is basic debug statement
 	ROS_INFO("Turning : %c",actual_dir);
+	ROS_INFO("Motor 1 Val : %d",motor_1_val);
+	ROS_INFO("Motor 2 Val : %d",motor_2_val);
 	// ROS_INFO("Button Pressed: %d",xbox_button); //this is basic debug statement
+
+
+	ros::NodeHandle n;
+	
+	motor_data_pub = n.advertise<std_msgs::String>("sabertooth_motor_data", 1000); //create a publisher for the motor control data
+	std_msgs::String msg;
+
+	//this is the message information
+    std::stringstream ss;
+
+
+
+    ss << motor_1_val;
+    msg.data = ss.str();
+    motor_data_pub.publish(msg);
+
+    // ROS_INFO("This is DEBUG: %s", msg.data.c_str()); //display what is being sent over the publisher
+
+	//end message info
 
 }
 
@@ -147,6 +188,8 @@ int main(int argc, char** argv)
 	ros::init(argc, argv, "learning_joy"); //CHANGE THIS WHEN YOU MOVE IT TO A NEW PACKAGE
 	ros::NodeHandle nh;
 	ros::Subscriber sub = nh.subscribe("joy",10,JoystickCallback);
+
+
 	ros::spin();
 
 }
