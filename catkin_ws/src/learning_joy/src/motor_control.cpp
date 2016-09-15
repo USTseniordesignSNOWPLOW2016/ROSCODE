@@ -14,6 +14,7 @@
 
 
 double governor = 0.5; //this governor will keep the system from taking off unexpectedly.  Use the DPAD to adjust the maximum speed of the vehicle
+const int motor_val_max = 2047; //this is the maximum value for the motor controller
 ros::Publisher motor_data_pub;
 // class SabertoothMotorController{ //maybe use this class to clean everything up
 // 	public:
@@ -97,12 +98,16 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	{
 		plow_FR_dir = 'F';
 		speed = throttle_fwd_perc;
+		motor_1_val = throttle_fwd_perc * motor_val_max; 
+		motor_2_val = throttle_fwd_perc * motor_val_max; 
 	}
 
 	else if(throttle_rev_perc > 0.1)
 	{
 		plow_FR_dir = 'R';
 		speed = throttle_rev_perc;
+		motor_1_val = -1*(throttle_rev_perc * motor_val_max); 
+		motor_2_val = -1*(throttle_rev_perc * motor_val_max); 
 	}
 
 	else
@@ -128,9 +133,6 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 		actual_dir = 'C'; //C for centered
 	}
 
-
-
-
 	/*
 		Steering Algorithm explained: 
 
@@ -145,11 +147,6 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 		Right Turn: L_wheel_speed (In Reverse) = throttle_perc * max_turn //a turn will be the percentage of turn multiplied by the maximum allowed turn speed
 				   R_wheel_speed = throttle_perc * max_turn
 	*/
-
-
-
-
-
 
 	// ROS_INFO("governor value: %f", governor);
 	// ROS_INFO("JOY L: %f",steer_dir);
@@ -173,7 +170,7 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 
 
 
-    ss << motor_1_val;
+    ss << motor_1_val; //this needs to be modified to send both motor 1 and motor 2
     msg.data = ss.str();
     motor_data_pub.publish(msg);
 
