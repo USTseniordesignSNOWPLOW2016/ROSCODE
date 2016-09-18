@@ -16,6 +16,7 @@
 double governor = 0.5; //this governor will keep the system from taking off unexpectedly.  Use the DPAD to adjust the maximum speed of the vehicle
 const int motor_val_max = 2047; //this is the maximum value for the motor controller
 ros::Publisher motor_data_pub;
+ros::Publisher motor_data_pub_2;
 // class SabertoothMotorController{ //maybe use this class to clean everything up
 // 	public:
 // 		ros::Publisher motor_data_pub = n.advertise<std_msgs::String>("sabertooth_motor_data", 1000); //create a publisher for the motor control data
@@ -163,16 +164,22 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	ros::NodeHandle n;
 	
 	motor_data_pub = n.advertise<std_msgs::String>("sabertooth_motor_data", 1000); //create a publisher for the motor control data
+	motor_data_pub_2 = n.advertise<std_msgs::String>("sabertooth_motor_data_2", 1000); //create a publisher for the motor 2 control data
 	std_msgs::String msg;
+	std_msgs::String msg_2;
 
 	//this is the message information
     std::stringstream ss;
+    std::stringstream ss_2;
 
 
 
-    ss << motor_1_val; //this needs to be modified to send both motor 1 and motor 2
+    ss << motor_1_val; 
+    ss_2 << motor_2_val;
     msg.data = ss.str();
+    msg_2.data = ss_2.str();
     motor_data_pub.publish(msg);
+    motor_data_pub_2.publish(msg_2);
 
     // ROS_INFO("This is DEBUG: %s", msg.data.c_str()); //display what is being sent over the publisher
 
