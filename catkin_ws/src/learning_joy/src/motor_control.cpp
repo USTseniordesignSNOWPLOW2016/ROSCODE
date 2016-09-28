@@ -152,12 +152,14 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	// ROS_INFO("governor value: %f", governor);
 	// ROS_INFO("JOY L: %f",steer_dir);
 	// ROS_INFO("SPEED %%: %f",throttle_fwd_perc); //this is basic debug statement
+	/*
 	ROS_INFO("SPEED %%: %f",speed); //this is basic debug statement
 	ROS_INFO("DIRECTION: %c",plow_FR_dir); //this is basic debug statement
-	// ROS_INFO("SPEED %%: %f",throttle_rev_perc); //this is basic debug statement
+
 	ROS_INFO("Turning : %c",actual_dir);
 	ROS_INFO("Motor 1 Val : %d",motor_1_val);
 	ROS_INFO("Motor 2 Val : %d",motor_2_val);
+	*/
 	// ROS_INFO("Button Pressed: %d",xbox_button); //this is basic debug statement
 
 
