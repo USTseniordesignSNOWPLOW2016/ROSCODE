@@ -149,17 +149,11 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 				   R_wheel_speed = throttle_perc * max_turn
 	*/
 
-	// ROS_INFO("governor value: %f", governor);
-	// ROS_INFO("JOY L: %f",steer_dir);
-	// ROS_INFO("SPEED %%: %f",throttle_fwd_perc); //this is basic debug statement
 	ROS_INFO("SPEED %%: %f",speed); //this is basic debug statement
 	ROS_INFO("DIRECTION: %c",plow_FR_dir); //this is basic debug statement
-	// ROS_INFO("SPEED %%: %f",throttle_rev_perc); //this is basic debug statement
 	ROS_INFO("Turning : %c",actual_dir);
 	ROS_INFO("Motor 1 Val : %d",motor_1_val);
 	ROS_INFO("Motor 2 Val : %d",motor_2_val);
-	// ROS_INFO("Button Pressed: %d",xbox_button); //this is basic debug statement
-
 
 	ros::NodeHandle n;
 	
@@ -172,17 +166,12 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
     std::stringstream ss;
     std::stringstream ss_2;
 
-
-
     ss << motor_1_val; 
     ss_2 << motor_2_val;
     msg.data = ss.str();
     msg_2.data = ss_2.str();
     motor_data_pub.publish(msg);
     motor_data_pub_2.publish(msg_2);
-
-    // ROS_INFO("This is DEBUG: %s", msg.data.c_str()); //display what is being sent over the publisher
-
 	//end message info
 
 }
@@ -192,8 +181,6 @@ int main(int argc, char** argv)
 	ros::init(argc, argv, "learning_joy"); //CHANGE THIS WHEN YOU MOVE IT TO A NEW PACKAGE
 	ros::NodeHandle nh;
 	ros::Subscriber sub = nh.subscribe("joy",10,JoystickCallback);
-
-
 	ros::spin();
 
 }
