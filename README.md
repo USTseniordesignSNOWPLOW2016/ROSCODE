@@ -8,3 +8,4 @@ This package is intended for use with the University of St. Thomas Senior Design
 Packages:
 
 plow_motor_control: used for sending commands to a Sabertooth motor controller thorugh serial (via an Arduino)
+driveway_sim: used for simulating simple plowing strategies (very rough and currently only being used for demonstration purposes)
