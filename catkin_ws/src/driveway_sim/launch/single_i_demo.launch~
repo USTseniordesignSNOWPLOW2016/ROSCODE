@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="turtlesim" type="turtlesim_node" name="sim"/>
+	<node pkg="driveway_sim" type="driveway_sim" name="driveway_sim" output="screen"/>
+</launch>
