@@ -1,0 +1,10 @@
+<launch>
+<arg name="gui" default="False" />
+<param name="robot_description" textfile="/home/ustplow/catkin_ws/src/snowplow_visualization/urdf/model_1_test.urdf" />
+<param name="use_gui" value="$(arg gui)"/>
+<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+<node name="rviz" pkg="rviz" type="rviz" args="/home/ustplow/catkin_ws/src/snowplow_visualization/rviz/plow_viz_config.rviz" required="true" />
+
+<node pkg="tf" type="static_transform_publisher" name="base_link2frame" args="0 0 0 0 0 0 /base_link /my_frame 100"/>
+</launch>

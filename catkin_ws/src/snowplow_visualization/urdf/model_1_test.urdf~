@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot name="auto_snowplow">
+
+<link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://snowplow_visualization/models/BlizzardByter.stl" scale="0.001 0.001 0.001">
+	</mesh>
+      </geometry>
+	<origin rpy="1.5708 0 3.14159" xyz="0 0 0"/>
+    </visual>
+  </link>
+</robot>
