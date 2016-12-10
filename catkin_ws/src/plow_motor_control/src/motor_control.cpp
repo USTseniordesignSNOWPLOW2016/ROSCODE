@@ -49,9 +49,9 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	int DPAD_U = joy_data->buttons[13];
 	int DPAD_D = joy_data->buttons[14];
 
-	int max_turn = 1023; //maximum speed allowed to turn at (2047 is the maximum speed sent to motors)
-	int motor_1_val = 0; //this is the value that is actually sent out to the wheels (it is the percentage of the maximum turn speed taken from the joystick)
-	int motor_2_val = 0; //this is the value that is actually sent out to the wheels (it is the percentage of the maximum turn speed taken from the joystick)
+	int max_turn = 0.8*2047; //maximum speed allowed to turn at (2047 is the maximum speed sent to motors)
+	int track_L_val = 0; //this is the value that is actually sent out to the wheels (it is the percentage of the maximum turn speed taken from the joystick)
+	int track_R_val = 0; //this is the value that is actually sent out to the wheels (it is the percentage of the maximum turn speed taken from the joystick)
 
 	double throttle_fwd_perc = 0.0;
 	double throttle_rev_perc = 0.0;
@@ -99,16 +99,16 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	{
 		plow_FR_dir = 'F';
 		speed = throttle_fwd_perc;
-		motor_1_val = throttle_fwd_perc * motor_val_max; 
-		motor_2_val = throttle_fwd_perc * motor_val_max; 
+		track_L_val = throttle_fwd_perc * motor_val_max; 
+		track_R_val = throttle_fwd_perc * motor_val_max; 
 	}
 
 	else if(throttle_rev_perc > 0.1)
 	{
 		plow_FR_dir = 'R';
 		speed = throttle_rev_perc;
-		motor_1_val = -1*(throttle_rev_perc * motor_val_max); 
-		motor_2_val = -1*(throttle_rev_perc * motor_val_max); 
+		track_L_val = -1*(throttle_rev_perc * motor_val_max); 
+		track_R_val = -1*(throttle_rev_perc * motor_val_max); 
 	}
 
 	else
@@ -116,18 +116,65 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 		speed = 0.0;
 	}
 
+
 	if(steer_dir < -0.12) //might want to move this to the else loop so that turning can only be done without throttle
 	{
-		actual_dir = 'R';
-		motor_1_val = steer_dir * max_turn;
-		motor_2_val = -(steer_dir * max_turn);
+		ROS_INFO("throttle_rev_perc: %f" ,throttle_rev_perc);
+		if(throttle_fwd_perc < 0.1)
+		{
+			track_L_val = abs(steer_dir) * max_turn;
+			track_R_val = -abs(steer_dir) * max_turn;
+		}
+		//actual_dir = 'R';
+		//track_L_val = (steer_dir + throttle_fwd_perc)*motor_val_max;
+		else if(throttle_rev_perc < 0.1 && throttle_fwd_perc > 0.1)
+		{
+			ROS_INFO("turning and going forward");
+			track_L_val = (abs(steer_dir) + throttle_fwd_perc) * motor_val_max;
+			track_R_val = 0.5*throttle_fwd_perc * motor_val_max;
+		}
+
+		else if(throttle_rev_perc > 0.1)
+		{
+			ROS_INFO("backing up and turning");
+			track_L_val = -(abs(steer_dir) + throttle_rev_perc) * motor_val_max;
+			track_R_val = -0.5*throttle_rev_perc * motor_val_max;	
+		}
+		
+		//track_R_val = (throttle_fwd_perc)*motor_val_max;
+		if(track_L_val > motor_val_max)
+		{
+			track_L_val = motor_val_max;
+		}
 	}
 	else if(steer_dir > 0.14)
 	{
 		actual_dir = 'L';
+		ROS_INFO("throttle_rev_perc: %f", throttle_rev_perc);
+		if(throttle_fwd_perc < 0.1)
+		{
+			track_L_val = -abs(steer_dir) * motor_val_max;
+			track_R_val = abs(steer_dir) * motor_val_max;
+		}
+		// track_L_val = (throttle_fwd_perc)*motor_val_max;
+		// track_R_val = (steer_dir+throttle_fwd_perc)*motor_val_max;
+		else if(throttle_rev_perc < 0.1 && throttle_fwd_perc > 0.1)
+		{
+			ROS_INFO("turning and going forward");
+			track_L_val = 0.5*throttle_fwd_perc * motor_val_max;
+			track_R_val = (abs(steer_dir) + throttle_fwd_perc) * motor_val_max;	
+		}
+		else if(throttle_rev_perc > 0.1)
+		{
+			ROS_INFO("backing up and turning");
+			track_L_val = -0.5*throttle_rev_perc * motor_val_max;
+			track_R_val = -(abs(steer_dir) + throttle_rev_perc) * motor_val_max;	
+		}
 
-		motor_1_val = steer_dir * max_turn;
-		motor_2_val = -(steer_dir * max_turn);
+		if(track_R_val > motor_val_max)
+		{
+			track_R_val = motor_val_max;
+		}
 	}
 	else
 	{
@@ -149,16 +196,16 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 				   R_wheel_speed = throttle_perc * max_turn
 	*/
 
-	ROS_INFO("SPEED %%: %f",speed); //this is basic debug statement
-	ROS_INFO("DIRECTION: %c",plow_FR_dir); //this is basic debug statement
-	ROS_INFO("Turning : %c",actual_dir);
-	ROS_INFO("Motor 1 Val : %d",motor_1_val);
-	ROS_INFO("Motor 2 Val : %d",motor_2_val);
+	// ROS_INFO("SPEED %%: %f",speed); //this is basic debug statement
+	// ROS_INFO("DIRECTION: %c",plow_FR_dir); //this is basic debug statement
+	// ROS_INFO("Turning : %c",actual_dir);
+	// ROS_INFO("Motor 1 Val : %d",track_L_val);
+	// ROS_INFO("Motor 2 Val : %d",track_R_val);
 
 	ros::NodeHandle n;
 	
-	motor_data_pub = n.advertise<std_msgs::String>("sabertooth_motor_data", 1000); //create a publisher for the motor control data
-	motor_data_pub_2 = n.advertise<std_msgs::String>("sabertooth_motor_data_2", 1000); //create a publisher for the motor 2 control data
+	motor_data_pub = n.advertise<std_msgs::String>("sabertooth_motor_data", 1); //create a publisher for the motor control data
+	motor_data_pub_2 = n.advertise<std_msgs::String>("sabertooth_motor_data_2", 1); //create a publisher for the motor 2 control data
 	std_msgs::String msg;
 	std_msgs::String msg_2;
 
@@ -166,8 +213,8 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
     std::stringstream ss;
     std::stringstream ss_2;
 
-    ss << motor_1_val; 
-    ss_2 << motor_2_val;
+    ss << track_L_val; 
+    ss_2 << track_R_val;
     msg.data = ss.str();
     msg_2.data = ss_2.str();
     motor_data_pub.publish(msg);
