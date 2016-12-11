@@ -49,7 +49,7 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 	int DPAD_U = joy_data->buttons[13];
 	int DPAD_D = joy_data->buttons[14];
 
-	int max_turn = 0.8*2047; //maximum speed allowed to turn at (2047 is the maximum speed sent to motors)
+	int max_turn = 0.5*2047; //maximum speed allowed to turn at (2047 is the maximum speed sent to motors)
 	int track_L_val = 0; //this is the value that is actually sent out to the wheels (it is the percentage of the maximum turn speed taken from the joystick)
 	int track_R_val = 0; //this is the value that is actually sent out to the wheels (it is the percentage of the maximum turn speed taken from the joystick)
 
@@ -153,8 +153,8 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 		ROS_INFO("throttle_rev_perc: %f", throttle_rev_perc);
 		if(throttle_fwd_perc < 0.1)
 		{
-			track_L_val = -abs(steer_dir) * motor_val_max;
-			track_R_val = abs(steer_dir) * motor_val_max;
+			track_L_val = -abs(steer_dir) * max_turn;
+			track_R_val = abs(steer_dir) * max_turn;
 		}
 		// track_L_val = (throttle_fwd_perc)*motor_val_max;
 		// track_R_val = (steer_dir+throttle_fwd_perc)*motor_val_max;

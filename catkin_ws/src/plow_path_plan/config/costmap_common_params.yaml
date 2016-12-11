@@ -1,0 +1,9 @@
+transform_tolerance: 0.8
+obstacle_range: 2.5
+max_obstacle_height: 2.0
+raytrace_range: 3.0
+robot_radius: 0.17
+inscribed_radius: 0.25
+inflation_radius: 0.55
+observation_sources: scan 
+scan: {sensor_frame: base_laser_link, data_type: LaserScan, topic: scan, marking: true, clearing: true}
