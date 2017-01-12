@@ -16,12 +16,12 @@ goal_locations = []
 nav_motor_cmd = Twist()
 angular_threshold = radians(3) #define threshold of angular accuracy
 linear_threshold = 0.4 #threshold for linear accuracy
-angular_p = 6 #throttle turning speed to a maximum amount
+angular_p = 4 #throttle turning speed to a maximum amount
 angular_i = 0
 angular_d = 0
-linear_p = 0.9 #throttle linear speed to a maximum speed
+linear_p = 0.7 #throttle linear speed to a maximum speed
 linear_i = 0
-linear_d = 0
+linear_d = 0.7
 angular_error = 0
 angular_error_tot = 0
 linear_error = 0
@@ -106,8 +106,8 @@ def main():
         angular_error_tot += angular_error
         
         
-        rospy.loginfo("angle to target: %s",degrees(angular_error))
-        rospy.loginfo("angle threshold: %s",degrees(angular_threshold))
+        # rospy.loginfo("angle to target: %s",degrees(angular_error))
+        # rospy.loginfo("angle threshold: %s",degrees(angular_threshold))
         
         # rospy.loginfo("navigate waypoints status %s", navigate_waypoints)
         if(len(goal_locations) > 0 and navigate_waypoints != 0): #don't start navigating until "navigate_waypoints" is toggled by right bumper
@@ -116,8 +116,8 @@ def main():
            
             linear_error = sqrt(curr_to_goal_x**2 + curr_to_goal_y**2)
             linear_error_tot += linear_error
-            rospy.loginfo("distance to target: %s",linear_error)
-            rospy.loginfo("distance threshold: %s",linear_threshold)
+            # rospy.loginfo("distance to target: %s",linear_error)
+            # rospy.loginfo("distance threshold: %s",linear_threshold)
 
             if abs(linear_error) > linear_threshold:
                 nav_motor_cmd.angular.z = (angular_error*angular_p) + (angular_error_tot*angular_i) + ((angular_error-angular_error_prev)*angular_d)
@@ -134,6 +134,11 @@ def main():
                 nav_motor_cmd.angular.z = 0.0
                 rospy.loginfo("you have arrived")
                 rospy.loginfo("these are all of our waypoints \n %s", goal_locations)
+                #reset all errors to 0 for the next waypoint
+                linear_error = 0
+                linear_error_tot = 0
+                angular_error = 0
+                angular_error_tot = 0
                 del goal_locations[0]
             
 
@@ -158,4 +163,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
