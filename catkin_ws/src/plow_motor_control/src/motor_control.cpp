@@ -57,6 +57,17 @@ void JoystickCallback(const sensor_msgs::Joy::ConstPtr& joy_data)
 
 	//NOTE: we will need to configure a deadzone so that we can make sure that the plow will not take off unexpectedly
 
+	if(trig_RT == 0)
+	{
+		//if this value is something other than 0, we don't need to initialize (until trigger is pressed for the first time, it defaults to 0)
+		trig_RT = 1; //set trigger to the "released" position
+	}
+	if(trig_LT == 0)
+	{
+		//if this value is something other than 0, we don't need to initialize (until trigger is pressed for the first time, it defaults to 0)
+		trig_LT = 1; //set trigger to the "released" position
+	}
+
 	throttle_fwd_perc = ((-1*(trig_RT)+1)/2);
 	throttle_rev_perc = ((-1*(trig_LT)+1)/2);
 
