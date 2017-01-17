@@ -49,10 +49,14 @@ def rviz_waypoint_mark():
     waypoint_marker_array_pub.publish(waypoint_marker_array)
     
     rate.sleep()
-
+def xbox_waypoint_callback(pose):
+    global waypoint_pose
+    waypoint_pose = pose
+    rviz_waypoint_mark()
 def main(): 
     rospy.init_node('waypoint_listener', anonymous=True)
     rospy.Subscriber("/move_base_simple/goal", PoseStamped, get_waypoint_pose)
+    rospy.Subscriber("/xbox_waypoint", PoseStamped, xbox_waypoint_callback)
 
     while not rospy.is_shutdown():
         time.sleep(0.5)

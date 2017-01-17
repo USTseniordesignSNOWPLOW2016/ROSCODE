@@ -56,10 +56,15 @@
 	<node pkg="tf" type="static_transform_publisher" name="map_baselink_broadcaster" args="0 0 0 0 0 0 odom base_link 100"/>
  	
  	 <!-- Run the map server -->
- 	 <arg name="map_file" default="$(find plow_waypoint_nav)/maps/map1.yaml"/>
+ 	 <arg name="map_file" default="$(find plow_waypoint_nav)/maps/map2.yaml"/>
 	 <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
 	 <!--- Run AMCL -->
 	 <include file="$(find plow_waypoint_nav)/launch/amcl.launch" />
+
+	<!-- <node pkg="plow_waypoint_nav" name="plow_nav_waypoint" type="plow_nav_waypoint.py"  output="screen"/> -->
+	<!-- <node pkg="drop_waypoints_controller" name="drop_waypoints_xbox" type="drop_waypoints_xbox.py"  output="screen"/> -->
+	<node pkg="waypoint_marker_display" name="waypoint_marker_display" type="marker_waypoint_display.py"  output="screen"/>
+
 
 </launch>

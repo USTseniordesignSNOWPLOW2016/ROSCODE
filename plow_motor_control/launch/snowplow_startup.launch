@@ -14,7 +14,7 @@
 	
 	<node pkg="joy" type="joy_node" name="joystick"/>
 
-	<node pkg="plow_motor_control_py" name="sabertooth_drive" type="sabertooth_drive.py" output="screen"/> 	-->
+	<node pkg="plow_motor_control_py" name="sabertooth_drive" type="sabertooth_drive.py" output="screen"/> 
 	<!-- RPLIDAR initialization-->
 	<node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
 	  <param name="serial_port"         type="string" value="/dev/ttyUSB0"/>  
