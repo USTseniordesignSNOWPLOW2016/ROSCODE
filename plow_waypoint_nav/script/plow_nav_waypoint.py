@@ -8,6 +8,7 @@ from geometry_msgs.msg import Point
 import sensor_msgs.msg
 import time
 from math import *
+import tf
 
 
 error_tolerance = 0.3 #error allowed for navigating to waypoints
@@ -102,9 +103,14 @@ def main():
 
         # rospy.loginfo("current: %s", current_location.pose.position.x)
         # rospy.loginfo("goal: %s",radians(goal_location.pose.position.x))
+        curr_angle = 0
         try:
             curr_to_goal_x = goal_locations[0].pose.position.x - current_location.pose.position.x
             curr_to_goal_y = goal_locations[0].pose.position.y - current_location.pose.position.y
+            ysqr = current_location.pose.orientation.y * current_location.pose.orientation.y
+            t3 = 2*(current_location.pose.orientation.w * current_location.pose.orientation.z + current_location.pose.orientation.y * current_location.pose.orientation.x)
+            t4 = 1-2*(ysqr + current_location.pose.orientation.z * current_location.pose.orientation.z)
+            curr_angle = atan(t3/t4)
         except IndexError:
             curr_to_goal_x = 0
             curr_to_goal_y = 0
@@ -116,7 +122,7 @@ def main():
         angular_error_tot += angular_error
         
         
-        rospy.loginfo("angle to target: %s",degrees(angular_error))
+        # rospy.loginfo("angle to target: %s",degrees(angular_error-curr_angle))
         # rospy.loginfo("angle threshold: %s",degrees(angular_threshold))
         
         # rospy.loginfo("navigate waypoints status %s", navigate_waypoints)
